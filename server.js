@@ -5,6 +5,7 @@ const User=require("./models/User");
 const port=8000;
 const app= express();
 mongoose.connect("mongodb://localhost/userData")
+mongoose.set('useFindAndModify', false);
 app.use(bodyParser.json());
 
 app.listen(port, ()=>{
@@ -61,9 +62,10 @@ app.route('/users/:id')
   		email:req.body.newData.email,
   		password:req.body.newData.password
   	},
-  	{
-  		new:true
-  	},(err,data)=>{
+    {
+      new:true
+    },
+  	(err,data)=>{
   		if(err){
   			res.json({
   				success:false,
@@ -77,7 +79,7 @@ app.route('/users/:id')
   		}else{
   			res.json({
   				success:true,
-  				data:date
+  				data:data
   			})
   		}
   	}
@@ -87,4 +89,25 @@ app.route('/users/:id')
 // DELETE
 .delete((req,res)=>{
   // User.findByIdAndDelete()
+  User.findByIdAndDelete(
+  	req.params.id,
+  	(err,data)=>{
+  		if(err){
+  			res.json({
+  				success:false,
+  				message:err
+  			})
+  		}else if(!data){
+  			res.json({
+  				success:false,
+  				message:"not found"
+  			})
+  		}else{
+  			res.json({
+  				success:true,
+  				data:data
+  			})
+  		}
+  	}	
+  )
 })
